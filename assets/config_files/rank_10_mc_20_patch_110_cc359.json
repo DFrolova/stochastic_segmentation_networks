@@ -1,8 +1,8 @@
 {
 	"model": {
 		"StochasticDeepMedic": {
-			"input_channels": 4,
-			"num_classes": 4,
+			"input_channels": 1,
+			"num_classes": 2,
 			"fully_connected": [250, 250],
 			"feature_maps": [30, 30, 40, 40, 40, 40, 50, 50],
 			"rank": 10		
@@ -10,17 +10,17 @@
 	},
 	"data": {
 		"task": "segmentation",
-		"class_names": ["foreground", "necrotic core", "oedema", "enhancing tumor"],
-		"channels": ["flair", "t1", "t1ce", "t2"],
+		"class_names": ["foreground", "brain"],
+		"channels": ["t1"],
 		"target": "seg",
 		"sampling_mask": "sampling_mask",
 		"transformation": {}
 	},
 	"training": {
-		"batch_size": 4,
+		"batch_size": 10,
 		"patches_per_image": 20,
-		"images_per_epoch": 50,
-		"input_patch_size": [140, 140, 140],
+		"images_per_epoch": 10,
+		"input_patch_size": [110, 110, 110],
 		"sampler": {
 			"ForegroundBackgroundPatchSampler": {
 				"foreground_probability": 0.5,
@@ -59,22 +59,22 @@
 			"cov_factor": {"MultiChannelTensorDistribution": {"name": "cov_factor", "num_maps": 4}}}
 	},
 	"valid": {
-		"batch_size": 4,
-		"input_patch_size": [140, 140, 140],
+		"batch_size": 10,
+		"input_patch_size": [110, 110, 110],
 		"patches_per_image": 40,
-		"images_per_epoch": 20,
+		"images_per_epoch": 0,
 		"num_workers": 2,
 		"max_cases_in_memory": 20,
 		"eval_every": 50,
 		"keep_model_every": 400
 	},
 	"test": {
-                "batch_size": 4,
-                "input_patch_size": [140, 140, 140],
+                "batch_size": 10,
+                "input_patch_size": [110, 110, 110],
                 "num_workers": 1,
                 "extra_output_names": ["logit_mean", "cov_diag", "cov_factor"],
-                "eval_every": 5000
-        },
+                "eval_every": 50
+	},
 	"loss": {
 		"StochasticSegmentationNetworkLossMCIntegral": {"num_mc_samples": 20}
 	},
@@ -89,7 +89,7 @@
 	},
 	"scheduler": {
 		"MultiStepLR": {
-			"milestones": [440, 640, 800, 900, 980, 1050],
+			"milestones": [40, 60, 80, 90, 95],
 			"gamma": 0.5
 		}
 	}

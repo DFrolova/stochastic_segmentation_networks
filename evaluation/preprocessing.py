@@ -301,7 +301,7 @@ def get_brain_mask(t1):
 
 
 def z_score_normalisation(channel, brain_mask, cutoff_percentiles=(5., 95.), cutoff_below_mean=True):
-    low, high = np.percentile(channel[brain_mask.astype(np.bool)], cutoff_percentiles)
+    low, high = np.percentile(channel[brain_mask.astype(bool)], cutoff_percentiles)
     norm_mask = np.logical_and(brain_mask, np.logical_and(channel > low, channel < high))
     if cutoff_below_mean:
         norm_mask = np.logical_and(norm_mask, channel > np.mean(channel))
