@@ -5,6 +5,12 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
+from dpipe.dataset.wrappers import apply
+from ood.dataset.cc359 import CC359
+from ood.dataset.utils import Rescale3D, scale_mri
+from ood.paths import CC359_DATA_PATH
+
+
 train_ids = [
 "CC0184",
 "CC0185",
@@ -38,7 +44,7 @@ train_ids = [
 "CC0238"
 ] 
 
-valid_ids = []
+valid_ids = ["CC0359"]
 
 test_ids = [
 "CC0180",
@@ -410,34 +416,42 @@ if __name__ == '__main__':
                         help='Path to output directory.')
 
     parse_args, unknown = parser.parse_known_args()
-    output_dataframe = pd.DataFrame()
-    for fname in tqdm(os.listdir(os.path.join(parse_args.input_dir, 'images'))):
-        image_path = os.path.join(parse_args.input_dir, 'images', fname)
-        seg_path = os.path.join(parse_args.input_dir, 'masks', fname.split('.')[0] + '_ss.nii.gz')
-        id_ = fname.split('_')[0]
-        output_dataframe.loc[id_, 'seg'] = seg_path
+    
+    data_path = CC359_DATA_PATH
+    voxel_spacing = (1, 0.95, 0.95)
 
-        t1 = sitk.ReadImage(image_path)
-        brain_mask = get_brain_mask(t1)
+    preprocessed_dataset = apply(Rescale3D(CC359(data_path), voxel_spacing), load_image=scale_mri)
+    dataset = apply(preprocessed_dataset, load_image=np.float32)
+    
+    output_dataframe = pd.DataFrame()
+    for id_ in tqdm(dataset.ids):
+        segm = sitk.GetImageFromArray(dataset.load_segm(id_))
+        seg_path = os.path.join(parse_args.output_dir, id_) + '_seg.nii.gz'
+        output_dataframe.loc[id_, 'seg'] = seg_path
+        os.makedirs(os.path.dirname(seg_path), exist_ok=True)
+        sitk.WriteImage(segm, seg_path)
+
+        image = sitk.GetImageFromArray(dataset.load_image(id_))
+        brain_mask = get_brain_mask(image)
         output_path = os.path.join(parse_args.output_dir, id_) + f'_brain_mask.nii.gz'
         output_dataframe.loc[id_, 'sampling_mask'] = output_path
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         sitk.WriteImage(brain_mask, output_path)
 
-        channel_array = sitk.GetArrayFromImage(t1)
+        channel_array = sitk.GetArrayFromImage(image)
         normalised_channel_array = z_score_normalisation(channel_array, sitk.GetArrayFromImage(brain_mask))
         normalised_channel = sitk.GetImageFromArray(normalised_channel_array)
-        normalised_channel.CopyInformation(t1)
+        normalised_channel.CopyInformation(image)
         output_path = os.path.join(parse_args.output_dir, id_) + f'_t1.nii.gz'
         output_dataframe.loc[id_, 't1'] = output_path
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         sitk.WriteImage(normalised_channel, output_path)
 
     output_dataframe.index.name = 'id'
-    os.makedirs('assets/cc359_data', exist_ok=True)
+    os.makedirs('stochastic_segmentation_networks/assets/cc359_data', exist_ok=True)
     train_index = output_dataframe.loc[train_ids]
-    train_index.to_csv('assets/cc359_data/data_index_train.csv')
+    train_index.to_csv('stochastic_segmentation_networks/assets/cc359_data/data_index_train.csv')
     valid_index = output_dataframe.loc[valid_ids]
-    valid_index.to_csv('assets/cc359_data/data_index_valid.csv')
+    valid_index.to_csv('stochastic_segmentation_networks/assets/cc359_data/data_index_valid.csv')
     test_index = output_dataframe.loc[test_ids]
-    test_index.to_csv('assets/cc359_data/data_index_test.csv')
+    test_index.to_csv('stochastic_segmentation_networks/assets/cc359_data/data_index_test.csv')

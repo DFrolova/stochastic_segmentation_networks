@@ -54,19 +54,19 @@
 		"num_workers": 3,
 		"max_cases_in_memory": 50,
 		"extra_metrics": {
-			"logit_mean": {"MultiChannelTensorDistribution": {"name": "logit_mean", "num_maps": 4}},
-			"cov_diag": {"MultiChannelTensorDistribution": {"name": "cov_diag", "num_maps": 4}},
-			"cov_factor": {"MultiChannelTensorDistribution": {"name": "cov_factor", "num_maps": 4}}}
+			"logit_mean": {"MultiChannelTensorDistribution": {"name": "logit_mean", "num_maps": 2}},
+			"cov_diag": {"MultiChannelTensorDistribution": {"name": "cov_diag", "num_maps": 2}},
+			"cov_factor": {"MultiChannelTensorDistribution": {"name": "cov_factor", "num_maps": 2}}}
 	},
 	"valid": {
 		"batch_size": 10,
 		"input_patch_size": [110, 110, 110],
 		"patches_per_image": 40,
-		"images_per_epoch": 0,
+		"images_per_epoch": 1,
 		"num_workers": 2,
 		"max_cases_in_memory": 20,
 		"eval_every": 50,
-		"keep_model_every": 400
+		"keep_model_every": 20
 	},
 	"test": {
                 "batch_size": 10,

@@ -14,7 +14,7 @@ import argparse
 
 class_names = ['background', 'non-enhancing tumor', 'oedema', 'enhancing tumor']
 class_mergers = {'tumor core': {'non-enhancing tumor', 'enhancing tumor'}}
-DEVICE = 0
+DEVICE = 'cpu'
 
 
 # these are useless, random_sampler is just used to generate noisy samples and deterministic_sampler to
