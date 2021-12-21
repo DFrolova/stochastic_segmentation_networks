@@ -6,10 +6,10 @@ import numpy as np
 from tqdm import tqdm
 
 from dpipe.dataset.wrappers import apply
-from ood.dataset.cc359 import CC359
-from ood.dataset.utils import Rescale3D, scale_mri
-from ood.paths import CC359_DATA_PATH
+from ssn.cc359 import CC359, Rescale3D, scale_mri
 
+
+CC359_DATA_PATH = '/shared/data/cc359'
 
 train_ids = [
 "CC0184",

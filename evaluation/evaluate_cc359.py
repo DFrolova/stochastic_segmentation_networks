@@ -13,7 +13,7 @@ from metrics.distribution_statistics import DistributionStatistics
 import argparse
 
 class_names = ['background', 'brain']
-class_mergers = {'tumor core': {'non-enhancing tumor', 'enhancing tumor'}}
+class_mergers = None
 DEVICE = 'cpu'
 
 
@@ -101,7 +101,7 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
         # I am not showing the other numbers because they don't make sense even though they can be computed
         # I don't want people to get confused
         if (key == 'random_sampler' and not deterministic) or (deterministic and key == 'deterministic_sampler'):
-            dist_stats = DistributionStatistics(running_metrics[key], class_names, class_mergers)
+            dist_stats = DistributionStatistics(running_metrics[key], class_names)
             dist_stats.report(['DSC'])
     return overlap_metrics.dataframes
 
